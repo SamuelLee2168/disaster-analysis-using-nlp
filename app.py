@@ -200,7 +200,9 @@ frequent_keywords = pd.Series(keyword_value_counts.loc[keyword_value_counts>=5].
 frequent_locations = pd.Series(location_value_counts.loc[location_value_counts>=1000].index).map(add_location_prefix)
 extra_features_to_use = pd.concat([frequent_keywords,frequent_locations])
 
-my_pkl = open("models/final_model_v2.pkl",'rb')
+options = tf.saved_model.LoadOptions(experimental_io_device='/job:localhost')
+
+my_pkl = open("models/final_model_v2.pkl",'rb',options=options)
 final_model = pickle.load(my_pkl)
 my_pkl.close()
 
