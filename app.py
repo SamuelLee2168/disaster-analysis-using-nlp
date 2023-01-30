@@ -201,10 +201,10 @@ frequent_locations = pd.Series(location_value_counts.loc[location_value_counts>=
 extra_features_to_use = pd.concat([frequent_keywords,frequent_locations])
 
 options = tf.saved_model.LoadOptions(experimental_io_device='/job:localhost')
-
-my_pkl = open("models/final_model_v2.pkl",'rb',options=options)
-final_model = pickle.load(my_pkl)
-my_pkl.close()
+final_model = tf.keras.models.load_model('models/final_model_v2',options=options)
+#my_pkl = open("models/final_model_v2.pkl",'rb')
+#final_model = pickle.load(my_pkl)
+#my_pkl.close()
 
 def convert_to_probs(preds):
     probs = np.exp(preds)/(1+np.exp(preds))
