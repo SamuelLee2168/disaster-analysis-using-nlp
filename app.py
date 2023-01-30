@@ -200,9 +200,7 @@ frequent_keywords = pd.Series(keyword_value_counts.loc[keyword_value_counts>=5].
 frequent_locations = pd.Series(location_value_counts.loc[location_value_counts>=1000].index).map(add_location_prefix)
 extra_features_to_use = pd.concat([frequent_keywords,frequent_locations])
 
-options = tf.saved_model.LoadOptions(experimental_io_device='/job:localhost')
-
-my_pkl = open("models/final_model.pkl",'rb')
+my_pkl = open("models/final_model_v2.pkl",'rb')
 final_model = pickle.load(my_pkl)
 my_pkl.close()
 
@@ -217,7 +215,7 @@ def predict_sentence(sentence,model,vocab):
     df_to_process['keyword'] = [None]
     cleaned = clean_without_embedding(df_to_process,vocab,157)
     x = tf.convert_to_tensor(list(cleaned['text']))
-    x_extra = tf.convert_to_tensor(np.zeros((1,217)))
+    x_extra = tf.convert_to_tensor(np.zeros((1,252)))
     pred = model.predict((x,x_extra))
     return convert_to_probs(pred)[0]
 
@@ -244,7 +242,7 @@ text - The literal text of the tweet
 
 keyword - Disaster related keywords that are in the tweet. These keywords are manually labeled. For example, "ablaze" , "accident", and "wrecked" are all keywords.
 
-location - The given location of the twitter profile of the user who posted the tweet.
+location - The location the tweet was sent from.
 
 target - Whether the tweet indicates disaster or not. 1 = disaster and 0 = no disaster.
 """
