@@ -24,11 +24,11 @@ st.header("Introduction")
 introduction_text_1 = """
 Looking at Twitter is a great way to extract information about things like the newest trending movie, or the current support rate for a presidential candidate. 
 
-In this article, I created a nueral network to perform natural language processing on historical Twitter data, in order to detect disasters that are shared by people on Twitter. This can be used for disaster relief organizations and news agencies to automatically monitor Twitter. It can also be used to estimate the amount of disasters in the past by looking at historical tweets.
+In this article, I created a neural network to perform natural language processing on historical Twitter data, in order to detect disasters that are shared by people on Twitter. This can be used for disaster relief organizations and news agencies to automatically monitor Twitter. It can also be used to estimate the amount of disasters in the past by looking at historical tweets.
 
-The goal of the nueral network is to output 1 (disaster) or 0 (not disaster) given a tweet from Twitter. For example, the nueral network should output 1 if the tweet is "I can see that fire in the forest" or if the tweet is "The government is evacuating the entire city", while outputting 0 if the tweet is "What's up man?" or "It's pretty sunny today". Also, if the tweet is "If you drink bleach, it can cure COVID", that won't only indicate that there's a disaster going on (COVID outbreak), but also cause a disaster (Don't drink bleach!). 
+The goal of the neural network is to output 1 (disaster) or 0 (not disaster) given a tweet from Twitter. For example, the neural network should output 1 if the tweet is "I can see that fire in the forest" or if the tweet is "The government is evacuating the entire city", while outputting 0 if the tweet is "What's up man?" or "It's pretty sunny today". Also, if the tweet is "If you drink bleach, it can cure COVID", that won't only indicate that there's a disaster going on (COVID outbreak), but also cause a disaster (Don't drink bleach!). 
 
-The nueral network has an average of 80% accuracy in analyzing tweets.
+The neural network has an average of 80% accuracy in analyzing tweets.
 """
 st.write(introduction_text_1)
 
@@ -113,7 +113,7 @@ st.plotly_chart(fig)
 
 st.header("Calculating the Vocabulary")
 vocab_calculation_text_1 = """
-If the nueral network model needs to learn how to recognize ALL of the words that appear in the dataset, the model will take too long to train. We can reduce the training time by limiting the model's vocabulary to only the words that are important. To decide which words are important, we can first train a lasso model on the dataset since lasso models are fast to train, and then we can look at the coefficients of the lasso model and only choose the words with high absolute coefficients. We can also do the same thing with a random forest and then combine the 2 sets of words from lasso and random forest to form the vocabulary.
+If the neural network model needs to learn how to recognize ALL of the words that appear in the dataset, the model will take too long to train. We can reduce the training time by limiting the model's vocabulary to only the words that are important. To decide which words are important, we can first train a lasso model on the dataset since lasso models are fast to train, and then we can look at the coefficients of the lasso model and only choose the words with high absolute coefficients. We can also do the same thing with a random forest and then combine the 2 sets of words from lasso and random forest to form the vocabulary.
 
 Here are the steps to preprocess for lasso and random forest:
 
