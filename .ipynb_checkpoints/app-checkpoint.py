@@ -77,17 +77,17 @@ def mark_special_text(sentence):
         
     return new_sentence
 
-#def sentence_to_index(raw_text):
-#    cv = CountVectorizer()
-#    cv.fit_transform(raw_text)
+def sentence_to_index(raw_text):
+    cv = CountVectorizer()
+    cv.fit_transform(raw_text)
 
-#    vocab = cv.vocabulary_.copy()
+    vocab = cv.vocabulary_.copy()
 
-#    def lookup_key(string):
-#        s = string.lower()
-#        return [vocab[w] for w in s.split()]
+    def lookup_key(string):
+        s = string.lower()
+        return [vocab[w] for w in s.split()]
 
-#    return list(map(lookup_key, raw_text))
+    return list(map(lookup_key, raw_text))
 
 def add_start_and_end(sentence):
     return 'start_ ' + sentence + ' _end'
@@ -180,9 +180,9 @@ def clean_without_embedding(df,vocab,sentence_len):
     
     return new_df
 
-#df = pd.read_csv("data/original_train.csv")
-#raw_train, raw_val_and_test = model_selection.train_test_split(df,train_size=0.7,random_state=1)
-#raw_val, raw_test = model_selection.train_test_split(raw_val_and_test,train_size=0.5,random_state=1)
+df = pd.read_csv("data/original_train.csv")
+raw_train, raw_val_and_test = model_selection.train_test_split(df,train_size=0.7,random_state=1)
+raw_val, raw_test = model_selection.train_test_split(raw_val_and_test,train_size=0.5,random_state=1)
 
 def add_keyword_prefix(string):
     return "keyword_"+string
@@ -190,16 +190,16 @@ def add_keyword_prefix(string):
 def add_location_prefix(string):
     return "location_"+string
 
-#intersecting_keywords = list(set(raw_train['keyword'].dropna().unique()) & set(raw_val['keyword'].dropna().unique()) & set(raw_test['keyword'].dropna().unique()))
-#intersecting_locations = list(set(raw_train['location'].dropna().unique()) & set(raw_val['location'].dropna().unique()) & set(raw_test['location'].dropna().unique()))
-#keyword_value_counts = df['keyword'].value_counts()[intersecting_keywords]
-#location_value_counts = df['location'].value_counts()[intersecting_locations]
-#frequent_keywords = pd.Series(keyword_value_counts.loc[keyword_value_counts>=5].index).map(add_keyword_prefix)
-#frequent_locations = pd.Series(location_value_counts.loc[location_value_counts>=1000].index).map(add_location_prefix)
-#extra_features_to_use = pd.concat([frequent_keywords,frequent_locations])
+intersecting_keywords = list(set(raw_train['keyword'].dropna().unique()) & set(raw_val['keyword'].dropna().unique()) & set(raw_test['keyword'].dropna().unique()))
+intersecting_locations = list(set(raw_train['location'].dropna().unique()) & set(raw_val['location'].dropna().unique()) & set(raw_test['location'].dropna().unique()))
+keyword_value_counts = df['keyword'].value_counts()[intersecting_keywords]
+location_value_counts = df['location'].value_counts()[intersecting_locations]
+frequent_keywords = pd.Series(keyword_value_counts.loc[keyword_value_counts>=5].index).map(add_keyword_prefix)
+frequent_locations = pd.Series(location_value_counts.loc[location_value_counts>=1000].index).map(add_location_prefix)
+extra_features_to_use = pd.concat([frequent_keywords,frequent_locations])
 
-#options = tf.saved_model.LoadOptions(experimental_io_device='/job:localhost')
-#final_model = tf.keras.models.load_model('models/final_model_v2',options=options)
+options = tf.saved_model.LoadOptions(experimental_io_device='/job:localhost')
+final_model = tf.keras.models.load_model('models/final_model_v2',options=options)
 #my_pkl = open("models/final_model_v2.pkl",'rb')
 #final_model = pickle.load(my_pkl)
 #my_pkl.close()
@@ -219,14 +219,14 @@ def predict_sentence(sentence,model,vocab):
     pred = model.predict((x,x_extra))
     return convert_to_probs(pred)[0]
 
-#input_text = st.text_input('Input a sentence','')
+input_text = st.text_input('Input a sentence','')
 
-#if input_text != '':
-#    prediction_result = predict_sentence(input_text,final_model,vocab)
-#    if prediction_result == 1:
-#        st.write("The inputted sentence indicates a disaster!")
-#    else:
-#        st.write("The inputted sentence does not indiciate a disaster!")
+if input_text != '':
+    prediction_result = predict_sentence(input_text,final_model,vocab)
+    if prediction_result == 1:
+        st.write("The inputted sentence indicates a disaster!")
+    else:
+        st.write("The inputted sentence does not indiciate a disaster!")
 
 st.header("Data Exploration")
 exploration_text_1 = """
