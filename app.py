@@ -6,12 +6,6 @@ import re
 import string
 import os
 import shutil
-from sklearn.metrics import log_loss, f1_score
-from sklearn.model_selection import GridSearchCV
-from sklearn import model_selection, feature_extraction, linear_model, metrics, model_selection, tree, ensemble
-import tensorflow as tf
-from tensorflow import keras
-from tensorflow.keras import layers, losses
 import plotly_express as px
 import plotly.graph_objects as go
 
@@ -35,47 +29,10 @@ In this article, I created a nueral network to perform natural language processi
 The goal of the nueral network is to output 1 (disaster) or 0 (not disaster) given a tweet from Twitter. For example, the nueral network should output 1 if the tweet is "I can see that fire in the forest" or if the tweet is "The government is evacuating the entire city", while outputting 0 if the tweet is "What's up man?" or "It's pretty sunny today". Also, if the tweet is "If you drink bleach, it can cure COVID", that won't only indicate that there's a disaster going on (COVID outbreak), but also cause a disaster (Don't drink bleach!). 
 
 The nueral network has an average of 80% accuracy in analyzing tweets.
-
-Below, you can try entering a sentence yourself to see what the nueral network will classify your sentence as.
 """
 st.write(introduction_text_1)
 
 
-my_pkl = open("data/vocab_1.pkl",'rb')
-vocab = pickle.load(my_pkl)
-my_pkl.close()
-
-def replace_nan(keyword):
-    if (pd.isnull(keyword)):
-        return "_nan"
-    else:
-        return keyword
-    
-def get_keyword_dummies(df):
-    replaced = df['keyword'].map(replace_nan)
-    return pd.get_dummies(replaced,prefix="keyword")
-
-def convert_to_dict(vocab):
-    vocab_dict = {}
-    for i in np.arange(len(vocab)):
-        vocab_dict[vocab[i]] = i
-    return vocab_dict
-
-def mark_special_text(sentence):
-    new_sentence = sentence
-    mentions_in_sentence = re.findall(r"@\w+[\s.,?:!-]|@\w+$",new_sentence)
-    for mention in mentions_in_sentence:
-        new_sentence = new_sentence.replace(mention, "mention"+mention.replace("@",""))
-    
-    hashtags_in_sentence = re.findall(r"#\w+[\s.,?:!-]|#\w+$",new_sentence)
-    for hashtag in hashtags_in_sentence:
-        new_sentence = new_sentence.replace(hashtag, "hashtag"+hashtag.replace("#",""))
-        
-    links_in_sentence = re.findall(r"(http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])",new_sentence)
-    for link in links_in_sentence:
-        new_sentence = new_sentence.replace(link[0]+"://"+link[1]+link[2], "link"+link[2])
-        
-    return new_sentence
 
 #def sentence_to_index(raw_text):
 #    cv = CountVectorizer()
@@ -89,106 +46,11 @@ def mark_special_text(sentence):
 
 #    return list(map(lookup_key, raw_text))
 
-def add_start_and_end(sentence):
-    return 'start_ ' + sentence + ' _end'
 
-def split_sentence(sentence):
-    return sentence.split()
-
-def clean_sentences(df):
-    cleaned_df = pd.DataFrame()
-    cleaned_df['id'] = df['id']
-    cleaned_df['text'] = df['text'].str.lower()
-    cleaned_df['text'] = cleaned_df['text'].map(mark_special_text)
-    cleaned_df['text'] = cleaned_df['text'].str.translate(str.maketrans('','',string.punctuation))
-    cleaned_df['text'] = cleaned_df['text'].map(add_start_and_end) 
-    cleaned_df['text'] = cleaned_df['text'].map(split_sentence)
-    return cleaned_df
-
-def count_vectorize(df):
-    count_vectorizer = feature_extraction.text.CountVectorizer()
-    counted_df = pd.DataFrame.sparse.from_spmatrix(count_vectorizer.fit_transform(df['text']))
-    counted_df.columns = ["text_"+word for word in count_vectorizer.get_feature_names_out()]
-    counted_df['id'] = df.reset_index()['id']
-    return counted_df
-
-def apply_vocab_and_pad_for_sentence(sentence,vocab,sentence_len):
-    new_sentence = []
-    for word in sentence:
-        if word in vocab:
-            new_sentence.append(word)
-        else:
-            new_sentence.append("unk_")
-    
-    actual_sentence_len = len(new_sentence)
-    if (actual_sentence_len >= sentence_len):
-        new_sentence = new_sentence[0:sentence_len]
-        return new_sentence
-    
-    for i in np.arange(sentence_len-actual_sentence_len):
-        new_sentence.append("pad_")
-        
-    return new_sentence
-
-def sentence_to_index(sentence,vocab):
-    vocab_dict = convert_to_dict(vocab)
-    new_sentence = []
-    for word in sentence:
-        if (word in vocab_dict.keys()):
-            new_sentence.append(vocab_dict[word])
-        else:
-            new_sentence.append(len(vocab_dict))
-    return new_sentence
-
-def sentence_to_index_for_df(df,vocab):
-    new_sentences = []
-    for sentence in df['text']:
-        new_sentences.append(sentence_to_index(sentence,vocab))
-        
-    return new_sentences
-
-def apply_vocab_and_pad_for_df(df,vocab,sentence_len):
-    new_df = df.copy()
-    new_sentences = []
-    for sentence in df['text']:
-        new_sentences.append(apply_vocab_and_pad_for_sentence(sentence,vocab,sentence_len))
-    new_df['text'] = new_sentences
-    new_df['text'] = sentence_to_index_for_df(new_df,vocab)
-    return new_df
-
-def custom_extend(base_list,extend_list):
-    new_list = []
-    for item in base_list:
-        new_list.append(item)
-    for item in extend_list:
-        new_list.append(item)
-    return new_list
-
-def add_extra_features_to_df(df,df_with_keywords):
-    dummies = get_keyword_dummies(df_with_keywords)
-    new_df = pd.concat([df,dummies],axis=1)
-    return new_df
-
-def add_extra_features_to_df(df,df_with_keywords,extra_features_to_use):
-    dummies = pd.get_dummies(df_with_keywords.fillna("_nan"))[extra_features_to_use]
-    new_df = pd.concat([df,dummies],axis=1)
-    return new_df  
-
-def clean_without_embedding(df,vocab,sentence_len):
-    new_df = clean_sentences(df)
-    new_df = apply_vocab_and_pad_for_df(new_df,vocab,sentence_len)
-    
-    return new_df
-
-#df = pd.read_csv("data/original_train.csv")
+df = pd.read_csv("data/original_train.csv")
 #raw_train, raw_val_and_test = model_selection.train_test_split(df,train_size=0.7,random_state=1)
 #raw_val, raw_test = model_selection.train_test_split(raw_val_and_test,train_size=0.5,random_state=1)
 
-def add_keyword_prefix(string):
-    return "keyword_"+string
-
-def add_location_prefix(string):
-    return "location_"+string
 
 #intersecting_keywords = list(set(raw_train['keyword'].dropna().unique()) & set(raw_val['keyword'].dropna().unique()) & set(raw_test['keyword'].dropna().unique()))
 #intersecting_locations = list(set(raw_train['location'].dropna().unique()) & set(raw_val['location'].dropna().unique()) & set(raw_test['location'].dropna().unique()))
@@ -203,21 +65,6 @@ def add_location_prefix(string):
 #my_pkl = open("models/final_model_v2.pkl",'rb')
 #final_model = pickle.load(my_pkl)
 #my_pkl.close()
-
-def convert_to_probs(preds):
-    probs = np.exp(preds)/(1+np.exp(preds))
-    return np.round(probs).flatten()
-
-def predict_sentence(sentence,model,vocab):
-    df_to_process = pd.DataFrame()
-    df_to_process['id'] = [0]
-    df_to_process['text'] = [sentence]
-    df_to_process['keyword'] = [None]
-    cleaned = clean_without_embedding(df_to_process,vocab,157)
-    x = tf.convert_to_tensor(list(cleaned['text']))
-    x_extra = tf.convert_to_tensor(np.zeros((1,252)))
-    pred = model.predict((x,x_extra))
-    return convert_to_probs(pred)[0]
 
 #input_text = st.text_input('Input a sentence','')
 
