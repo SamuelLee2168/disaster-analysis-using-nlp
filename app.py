@@ -37,7 +37,9 @@ The goal of the neural network is to output 1 (disaster) or 0 (not disaster) giv
 
 The neural network has an average of 80% accuracy in analyzing tweets.
 
-Below, you can try entering a sentence yourself to see what the neural network will classify your sentence as.
+Below, you can try entering a sentence yourself to see what the neural network will classify your sentence as. 
+
+Note that although the neural network has 80% accuracy when analyzing tweets from the test dataset, when you input sentences into the box below, the results may seem less accurate than 80%. This is due to "data drift" - the training and test set may be selected in a biased way from twitter, different from what you might want to input, causing a difference in accuracy. This is a problem I'm planning on tackling in the future.
 """
 st.write(introduction_text_1)
 
