@@ -1,5 +1,5 @@
 pandas==2.2.0
 plotly-express==0.4.1
 scikit-learn==1.3.0
-tensorflow==2.10.0
+tensorflow
 tensorflow-addons==0.22.0
